@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class SuaTelaDeLogin extends StatefulWidget {
+class LoginView extends StatefulWidget {
   @override
-  _SuaTelaDeLoginState createState() => _SuaTelaDeLoginState();
+  _LoginViewState createState() => _LoginViewState();
 }
 
-class _SuaTelaDeLoginState extends State<SuaTelaDeLogin> {
+class _LoginViewState extends State<LoginView> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -25,9 +25,10 @@ class _SuaTelaDeLoginState extends State<SuaTelaDeLogin> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              '"Esqueci Nunca Mais"',
+              'Lembrol',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 22,
+                fontWeight: FontWeight.w600,
                 color: Colors.white,
               ),
             ),
@@ -44,17 +45,71 @@ class _SuaTelaDeLoginState extends State<SuaTelaDeLogin> {
         centerTitle: true,
       ),
       body: Padding(
-        padding: const EdgeInsets.fromLTRB(50, 100, 50, 100),
+        padding: const EdgeInsets.fromLTRB(50, 2, 50, 100),
         child: Form(
           key: _formKey,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // Seus outros widgets vão aqui...
-              const SizedBox(height: 20),
+              Image.asset(
+                'lib/images/login_screen.jpg', 
+                width: 300,
+                height: 300,
+              ),
+              TextFormField(
+                controller: _emailController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: const InputDecoration(
+                  labelText: 'E-mail',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.email),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Informe um e-mail válido';
+                  }
+                  if (!value.contains('@')) {
+                    return 'E-mail inválido';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 15),
+              TextFormField(
+                controller: _passwordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Senha',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.lock),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Informe uma senha válida';
+                  }
+                  if (value.length < 6) {
+                    return 'Senha deve ter no mínimo 6 caracteres';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 15),
+              ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Login válido!'),
+                        duration: Duration(seconds: 3),
+                      ),
+                    );
+                  }
+                },
+                child: const Text('Login'),
+              ),
+              const SizedBox(height: 15),
               GestureDetector(
                 onTap: () {
-                  // Aqui você pode adicionar a lógica para recuperar a senha
                   print('Esqueci minha senha');
                 },
                 child: const Text(
@@ -62,10 +117,9 @@ class _SuaTelaDeLoginState extends State<SuaTelaDeLogin> {
                   style: TextStyle(decoration: TextDecoration.underline, color: Colors.blue),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 15),
               GestureDetector(
                 onTap: () {
-                  // Aqui você pode adicionar a lógica para o cadastro
                   print('Não tenho cadastro, quero me cadastrar');
                 },
                 child: const Text(
@@ -73,10 +127,9 @@ class _SuaTelaDeLoginState extends State<SuaTelaDeLogin> {
                   style: TextStyle(decoration: TextDecoration.underline, color: Colors.blue),
                 ),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(height: 15),
               ElevatedButton.icon(
                 onPressed: () {
-                  // Substitua pela sua URL de login do Google
                   _launchURL('https://accounts.google.com/signin');
                 },
                 icon: Icon(Icons.login),

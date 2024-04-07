@@ -1,5 +1,5 @@
-name: remembrall
-description: "A new Flutter project."
+name: Remembrall
+description: "Sua lista de compras para você nunca mais se esquecer!"
 
 # Prevent accidental publishing to pub.dev.
 publish_to: 'none'
@@ -10,17 +10,17 @@ environment:
   sdk: '>=3.3.0 <4.0.0'
 
 dependencies:
-  device_preview: ^1.1.0
   flutter:
     sdk: flutter
+  device_preview: ^1.1.0
+  cupertino_icons: ^1.0.2
+  url_launcher: ^6.0.12  
   flutter_localizations:
     sdk: flutter
-  url_launcher: ^6.2.5
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-
   flutter_lints: ^3.0.0
 
 flutter:
@@ -32,3 +32,4 @@ flutter:
   assets:
     # Add assets from the images directory to the application.
     - assets/images/
+    - lib/images/
