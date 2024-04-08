@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class LoginView extends StatefulWidget {
+  const LoginView({super.key});
+
   @override
   _LoginViewState createState() => _LoginViewState();
 }
@@ -41,9 +43,10 @@ class _LoginViewState extends State<LoginView> {
             ),
           ],
         ),
-        backgroundColor: Color.fromARGB(255, 176, 8, 170),
+        backgroundColor: const Color.fromARGB(255, 50, 33, 69),
         centerTitle: true,
       ),
+      backgroundColor: const Color.fromRGBO(212, 229, 237, 1.0),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(50, 2, 50, 80),
         child: Form(
@@ -52,7 +55,7 @@ class _LoginViewState extends State<LoginView> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Image.asset(
-                'lib/images/login_screen.jpg', 
+                'lib/images/login_screen.jpg',
                 width: 300,
                 height: 300,
               ),
@@ -63,6 +66,8 @@ class _LoginViewState extends State<LoginView> {
                   labelText: 'E-mail',
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.email),
+                  filled: true,
+                  fillColor: Colors.white, 
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -82,6 +87,8 @@ class _LoginViewState extends State<LoginView> {
                   labelText: 'Senha',
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.lock),
+                  filled: true,
+                  fillColor: Colors.white, 
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -94,47 +101,108 @@ class _LoginViewState extends State<LoginView> {
                 },
               ),
               const SizedBox(height: 10),
-              ElevatedButton(
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Login válido!'),
-                        duration: Duration(seconds: 3),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly, 
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (_formKey.currentState!.validate()) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Login válido!'),
+                              duration: Duration(seconds: 3),
+                            ),
+                          );
+                        }
+                      },
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all( const Color.fromARGB(255, 50, 33, 69)),
+                        foregroundColor: MaterialStateProperty.all(Colors.white),
+                        overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                          (Set<MaterialState> states) {
+                            if (states.contains(MaterialState.hovered)) {
+                              return Colors.purple[700];
+                            }
+                            if (states.contains(MaterialState.pressed)) {
+                              return Colors.purple[800];
+                            }
+                            return null;
+                          },
+                        ),
                       ),
-                    );
-                  }
-                },
-                child: const Text('Login'),
-              ),
-              const SizedBox(height: 10),
-              GestureDetector(
-                onTap: () {
-                  // Navega para a tela de recuperação de senha
-                  Navigator.pushNamed(context, '/passwordRecovery');
-                },
-                child: const Text(
-                  'Esqueci minha senha',
-                  style: TextStyle(decoration: TextDecoration.underline, color: Colors.blue),
-                ),
-              ),
-              const SizedBox(height: 10),
-              GestureDetector(
-                onTap: () {
-                  print('Não tenho cadastro, quero me cadastrar');
-                },
-                child: const Text(
-                  'Não tenho cadastro, quero me cadastrar',
-                  style: TextStyle(decoration: TextDecoration.underline, color: Colors.blue),
-                ),
+                      child: const Text('Login'),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _emailController.clear();
+                        _passwordController.clear();
+                        _formKey.currentState!.reset();
+                      },
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all( const Color.fromARGB(255, 50, 33, 69)), 
+                        foregroundColor: MaterialStateProperty.all(Colors.white),
+                        overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                          (Set<MaterialState> states) {
+                            if (states.contains(MaterialState.hovered)) {
+                              return Colors.purple[700];
+                            }
+                            if (states.contains(MaterialState.pressed)) {
+                              return Colors.purple[800];
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      child: const Text('Limpar'),
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 10),
               ElevatedButton.icon(
                 onPressed: () {
                   _launchURL('https://accounts.google.com/signin');
                 },
-                icon: Icon(Icons.login),
-                label: Text('Login com Google'),
+                style: ButtonStyle(
+                  backgroundColor: MaterialStateProperty.all(
+                      const Color.fromARGB(255, 50, 33, 69)),
+                  foregroundColor: MaterialStateProperty.all(Colors.white),
+                  overlayColor: MaterialStateProperty.resolveWith<Color?>(
+                    (Set<MaterialState> states) {
+                      if (states.contains(MaterialState.hovered)) {
+                        return Colors.purple[700];
+                      }
+                      if (states.contains(MaterialState.pressed)) {
+                        return Colors.purple[800];
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                icon: const Icon(Icons.login),
+                label: const Text('Login com Google'),
+              ),
+              const SizedBox(height: 10),
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, '/passwordRecovery');
+                },
+                child: const Text(
+                  'Esqueci minha senha',
+                  style: TextStyle(color: Colors.blue),
+                ),
+              ),
+              const SizedBox(height: 10),
+              GestureDetector(
+                onTap: () {},
+                child: const Text(
+                  'Não tenho cadastro, quero me cadastrar',
+                  style: TextStyle(color: Colors.blue),
+                ),
               ),
             ],
           ),

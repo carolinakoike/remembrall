@@ -33,6 +33,4 @@ flutter:
     # Add assets from the images directory to the application.
     - assets/images/
     - assets/gifs/
-    # - assets/gifs/throwing.gif
     - lib/images/
-    - lib/gifs/throwing.gif

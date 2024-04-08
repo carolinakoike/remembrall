@@ -20,19 +20,12 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Meu App',
-      // home: LoginView(), // Use LoginView aqui
-//     );
-//   }
-// }
-
-
-      useInheritedMediaQuery: true, // Adicione esta linha
-      locale: DevicePreview.locale(context), // Adicione esta linha
-      builder: DevicePreview.appBuilder, // Adicione esta linha
-      // Define as rotas nomeadas
+      useInheritedMediaQuery: true, 
+      locale: DevicePreview.locale(context), 
+      builder: DevicePreview.appBuilder, 
       routes: {
-        '/': (context) => LoginView(), // Define a rota inicial
-        '/passwordRecovery': (context) => PasswordRecoveryView(), // Adiciona a rota para a recuperação de senha
+        '/': (context) => LoginView(), 
+        '/passwordRecovery': (context) => PasswordRecoveryView(), 
       },
     );
   }
