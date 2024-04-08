@@ -3,11 +3,13 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 class SignUpView extends StatefulWidget {
-  const SignUpView({Key? key}) : super(key: key);
+  const SignUpView({super.key});
 
   @override
   _SignUpViewState createState() => _SignUpViewState();
 }
+int _formKeyIndex = 0;
+
 
 class _SignUpViewState extends State<SignUpView> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -15,7 +17,8 @@ class _SignUpViewState extends State<SignUpView> {
   final TextEditingController _dobController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   String? _gender;
   final List<String> _genders = ['Masculino', 'Feminino', 'Outro'];
@@ -34,22 +37,36 @@ class _SignUpViewState extends State<SignUpView> {
       });
     }
   }
+
+  void _clearAllFields() {
+    _nameController.clear();
+    _dobController.clear();
+    _emailController.clear();
+    _passwordController.clear();
+    _confirmPasswordController.clear();
+    _phoneController.clear();
+    setState(() {
+      _gender = null; 
+    _formKeyIndex++;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Cadastro'),
-        backgroundColor: const Color.fromARGB(255, 50, 33, 69), 
-        foregroundColor: Colors.white, 
-        iconTheme: const IconThemeData(color: Colors.white), 
-        actionsIconTheme: const IconThemeData(color: Colors.white), 
+        backgroundColor: const Color.fromARGB(255, 50, 33, 69),
+        foregroundColor: Colors.white,
+        iconTheme: const IconThemeData(color: Colors.white),
+        actionsIconTheme: const IconThemeData(color: Colors.white),
       ),
       backgroundColor: const Color.fromRGBO(212, 229, 237, 1.0),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
-          key: _formKey,
-          child: Column(
+            key: ValueKey<int>(_formKeyIndex),          
+            child: Column(
             children: [
               TextFormField(
                 controller: _nameController,
@@ -71,7 +88,9 @@ class _SignUpViewState extends State<SignUpView> {
                   ),
                 ),
                 readOnly: false,
-                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9/]')),],
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9/]')),
+                ],
                 onTap: () => _selectDate(context),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -103,7 +122,7 @@ class _SignUpViewState extends State<SignUpView> {
                 validator: (value) {
                   if (value!.length < 6) {
                     return 'Senha deve ter no mínimo 6 caracteres';
-                  }                  
+                  }
                   return null;
                 },
               ),
@@ -135,23 +154,25 @@ class _SignUpViewState extends State<SignUpView> {
               ),
               TextFormField(
                 controller: _phoneController,
-                decoration: const InputDecoration(labelText: 'Telefone Celular'),
+                decoration:
+                    const InputDecoration(labelText: 'Telefone Celular'),
                 keyboardType: TextInputType.phone,
-                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9()-]')),],
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9()-]')),
+                ],
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Informe seu telefone celular';
-                  }                  
+                  }
                   return null;
                 },
               ),
               const SizedBox(height: 20),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly, 
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Expanded(
-                    child: 
-                    ElevatedButton(
+                    child: ElevatedButton(
                       onPressed: () {
                         if (_formKey.currentState!.validate()) {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -161,13 +182,15 @@ class _SignUpViewState extends State<SignUpView> {
                             ),
                           );
                           Future.delayed(const Duration(seconds: 5), () {
-                            Navigator.of(context).pop(); 
+                            Navigator.of(context).pop();
                           });
                         }
                       },
                       style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all( const Color.fromARGB(255, 50, 33, 69)),
-                        foregroundColor: MaterialStateProperty.all(Colors.white),
+                        backgroundColor: MaterialStateProperty.all(
+                            const Color.fromARGB(255, 50, 33, 69)),
+                        foregroundColor:
+                            MaterialStateProperty.all(Colors.white),
                         overlayColor: MaterialStateProperty.resolveWith<Color?>(
                           (Set<MaterialState> states) {
                             if (states.contains(MaterialState.hovered)) {
@@ -187,18 +210,23 @@ class _SignUpViewState extends State<SignUpView> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
+                        // Limpa todos os campos
                         _nameController.clear();
                         _dobController.clear();
                         _emailController.clear();
                         _passwordController.clear();
                         _confirmPasswordController.clear();
                         _phoneController.clear();
-                        _gender = '';
+                        setState(() {
+                          _gender = null;
+                        });
                         _formKey.currentState!.reset();
                       },
                       style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all( const Color.fromARGB(255, 50, 33, 69)), 
-                        foregroundColor: MaterialStateProperty.all(Colors.white),
+                        backgroundColor: MaterialStateProperty.all(
+                            const Color.fromARGB(255, 50, 33, 69)),
+                        foregroundColor:
+                            MaterialStateProperty.all(Colors.white),
                         overlayColor: MaterialStateProperty.resolveWith<Color?>(
                           (Set<MaterialState> states) {
                             if (states.contains(MaterialState.hovered)) {
