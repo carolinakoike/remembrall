@@ -45,7 +45,7 @@ class _LoginViewState extends State<LoginView> {
         centerTitle: true,
       ),
       body: Padding(
-        padding: const EdgeInsets.fromLTRB(50, 2, 50, 100),
+        padding: const EdgeInsets.fromLTRB(50, 2, 50, 80),
         child: Form(
           key: _formKey,
           child: Column(
@@ -74,7 +74,7 @@ class _LoginViewState extends State<LoginView> {
                   return null;
                 },
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 10),
               TextFormField(
                 controller: _passwordController,
                 obscureText: true,
@@ -93,7 +93,7 @@ class _LoginViewState extends State<LoginView> {
                   return null;
                 },
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 10),
               ElevatedButton(
                 onPressed: () {
                   if (_formKey.currentState!.validate()) {
@@ -107,17 +107,18 @@ class _LoginViewState extends State<LoginView> {
                 },
                 child: const Text('Login'),
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 10),
               GestureDetector(
                 onTap: () {
-                  print('Esqueci minha senha');
+                  // Navega para a tela de recuperação de senha
+                  Navigator.pushNamed(context, '/passwordRecovery');
                 },
                 child: const Text(
                   'Esqueci minha senha',
                   style: TextStyle(decoration: TextDecoration.underline, color: Colors.blue),
                 ),
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 10),
               GestureDetector(
                 onTap: () {
                   print('Não tenho cadastro, quero me cadastrar');
@@ -127,7 +128,7 @@ class _LoginViewState extends State<LoginView> {
                   style: TextStyle(decoration: TextDecoration.underline, color: Colors.blue),
                 ),
               ),
-              const SizedBox(height: 15),
+              const SizedBox(height: 10),
               ElevatedButton.icon(
                 onPressed: () {
                   _launchURL('https://accounts.google.com/signin');

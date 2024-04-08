@@ -1,6 +1,7 @@
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
-import 'view/login_view.dart'; // Atualize este caminho conforme sua estrutura de diretórios
+import 'view/login_view.dart';
+import 'view/password_recovery_view.dart'; 
 
 void main() {
   runApp(
@@ -19,7 +20,20 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Meu App',
-      home: LoginView(), // Use LoginView aqui
+      // home: LoginView(), // Use LoginView aqui
+//     );
+//   }
+// }
+
+
+      useInheritedMediaQuery: true, // Adicione esta linha
+      locale: DevicePreview.locale(context), // Adicione esta linha
+      builder: DevicePreview.appBuilder, // Adicione esta linha
+      // Define as rotas nomeadas
+      routes: {
+        '/': (context) => LoginView(), // Define a rota inicial
+        '/passwordRecovery': (context) => PasswordRecoveryView(), // Adiciona a rota para a recuperação de senha
+      },
     );
   }
 }
