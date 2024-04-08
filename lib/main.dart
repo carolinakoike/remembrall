@@ -1,13 +1,14 @@
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'view/login_view.dart';
-import 'view/password_recovery_view.dart'; 
+import 'view/password_recovery_view.dart';
+import 'view/register_view.dart'; 
 
 void main() {
   runApp(
     DevicePreview(
       enabled: true,
-      builder: (context) => MainApp(),
+      builder: (context) => const MainApp(),
     ),
   );
 }
@@ -24,8 +25,9 @@ class MainApp extends StatelessWidget {
       locale: DevicePreview.locale(context), 
       builder: DevicePreview.appBuilder, 
       routes: {
-        '/': (context) => LoginView(), 
-        '/passwordRecovery': (context) => PasswordRecoveryView(), 
+        '/': (context) => const LoginView(), 
+        '/passwordRecovery': (context) => const PasswordRecoveryView(), 
+        '/signup': (context) => const SignUpView(),
       },
     );
   }

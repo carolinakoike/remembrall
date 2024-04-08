@@ -52,8 +52,7 @@ class PasswordRecoveryViewState extends State<PasswordRecoveryView> {
                   if (value == null || value.isEmpty) {
                     return 'Por favor, insira o e-mail.';
                   }
-                  String pattern =
-                      r'\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b';
+                  String pattern = r'\b[\w\.-]+@[\w\.-]+\.\w{2,4}\b';
                   RegExp regex = RegExp(pattern);
                   if (!regex.hasMatch(value)) {
                     return 'Insira um e-mail válido.';

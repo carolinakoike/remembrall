@@ -13,7 +13,6 @@ class _LoginViewState extends State<LoginView> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  // Função para abrir URLs
   void _launchURL(String url) async {
     if (!await launch(url)) throw 'Não foi possível abrir $url';
   }
@@ -198,7 +197,9 @@ class _LoginViewState extends State<LoginView> {
               ),
               const SizedBox(height: 10),
               GestureDetector(
-                onTap: () {},
+                onTap: () {
+                  Navigator.pushNamed(context, '/signup');
+                },
                 child: const Text(
                   'Não tenho cadastro, quero me cadastrar',
                   style: TextStyle(color: Colors.blue),
