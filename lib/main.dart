@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'view/login_view.dart';
 import 'view/password_recovery_view.dart';
 import 'view/register_view.dart'; 
+import 'view/shopping_list_view.dart';
 
 void main() {
   runApp(
@@ -28,6 +29,7 @@ class MainApp extends StatelessWidget {
         '/': (context) => const LoginView(), 
         '/passwordRecovery': (context) => const PasswordRecoveryView(), 
         '/signup': (context) => const SignUpView(),
+        '/list':(context) => const ShoppingListView(),
       },
     );
   }

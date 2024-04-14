@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import '/models/user_model.dart';
 
 class SignUpView extends StatefulWidget {
   const SignUpView({super.key});
@@ -8,8 +9,6 @@ class SignUpView extends StatefulWidget {
   @override
   _SignUpViewState createState() => _SignUpViewState();
 }
-int _formKeyIndex = 0;
-
 
 class _SignUpViewState extends State<SignUpView> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
@@ -17,8 +16,7 @@ class _SignUpViewState extends State<SignUpView> {
   final TextEditingController _dobController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
+  final TextEditingController _confirmPasswordController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
   String? _gender;
   final List<String> _genders = ['Masculino', 'Feminino', 'Outro'];
@@ -38,18 +36,27 @@ class _SignUpViewState extends State<SignUpView> {
     }
   }
 
-  void _clearAllFields() {
-    _nameController.clear();
-    _dobController.clear();
-    _emailController.clear();
-    _passwordController.clear();
-    _confirmPasswordController.clear();
-    _phoneController.clear();
-    setState(() {
-      _gender = null; 
-    _formKeyIndex++;
+void _registerUser() {
+  if (_formKey.currentState!.validate()) {
+    User newUser = User(
+      email: _emailController.text,
+      password: _passwordController.text,
+    );
+    UserStorage.addUser(newUser);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Cadastro realizado com sucesso! Você será direcionado para a tela de login.')),
+    );
+
+    Future.delayed(const Duration(seconds: 5), () {
+      Navigator.pushReplacementNamed(context, '/');  
     });
+  } else {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Por favor, preencha os campos corretamente.')),
+    );
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -58,15 +65,13 @@ class _SignUpViewState extends State<SignUpView> {
         title: const Text('Cadastro'),
         backgroundColor: const Color.fromARGB(255, 50, 33, 69),
         foregroundColor: Colors.white,
-        iconTheme: const IconThemeData(color: Colors.white),
-        actionsIconTheme: const IconThemeData(color: Colors.white),
       ),
       backgroundColor: const Color.fromRGBO(212, 229, 237, 1.0),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Form(
-            key: ValueKey<int>(_formKeyIndex),          
-            child: Column(
+          key: _formKey,
+          child: Column(
             children: [
               TextFormField(
                 controller: _nameController,
@@ -87,11 +92,7 @@ class _SignUpViewState extends State<SignUpView> {
                     onPressed: () => _selectDate(context),
                   ),
                 ),
-                readOnly: false,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9/]')),
-                ],
-                onTap: () => _selectDate(context),
+                readOnly: true,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Informe sua data de nascimento';
@@ -120,7 +121,7 @@ class _SignUpViewState extends State<SignUpView> {
                 decoration: const InputDecoration(labelText: 'Senha'),
                 obscureText: true,
                 validator: (value) {
-                  if (value!.length < 6) {
+                  if (value == null || value.isEmpty || value.length < 6) {
                     return 'Senha deve ter no mínimo 6 caracteres';
                   }
                   return null;
@@ -154,8 +155,7 @@ class _SignUpViewState extends State<SignUpView> {
               ),
               TextFormField(
                 controller: _phoneController,
-                decoration:
-                    const InputDecoration(labelText: 'Telefone Celular'),
+                decoration: const InputDecoration(labelText: 'Telefone Celular'),
                 keyboardType: TextInputType.phone,
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[0-9()-]')),
@@ -173,35 +173,10 @@ class _SignUpViewState extends State<SignUpView> {
                 children: [
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Cadastro realizado com sucesso!'),
-                              duration: Duration(seconds: 5),
-                            ),
-                          );
-                          Future.delayed(const Duration(seconds: 5), () {
-                            Navigator.of(context).pop();
-                          });
-                        }
-                      },
+                      onPressed: _registerUser,
                       style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(
-                            const Color.fromARGB(255, 50, 33, 69)),
-                        foregroundColor:
-                            MaterialStateProperty.all(Colors.white),
-                        overlayColor: MaterialStateProperty.resolveWith<Color?>(
-                          (Set<MaterialState> states) {
-                            if (states.contains(MaterialState.hovered)) {
-                              return Colors.purple[700];
-                            }
-                            if (states.contains(MaterialState.pressed)) {
-                              return Colors.purple[800];
-                            }
-                            return null;
-                          },
-                        ),
+                        backgroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 50, 33, 69)),
+                        foregroundColor: MaterialStateProperty.all(Colors.white),
                       ),
                       child: const Text('Cadastrar'),
                     ),
@@ -210,7 +185,6 @@ class _SignUpViewState extends State<SignUpView> {
                   Expanded(
                     child: ElevatedButton(
                       onPressed: () {
-                        // Limpa todos os campos
                         _nameController.clear();
                         _dobController.clear();
                         _emailController.clear();
@@ -223,21 +197,8 @@ class _SignUpViewState extends State<SignUpView> {
                         _formKey.currentState!.reset();
                       },
                       style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(
-                            const Color.fromARGB(255, 50, 33, 69)),
-                        foregroundColor:
-                            MaterialStateProperty.all(Colors.white),
-                        overlayColor: MaterialStateProperty.resolveWith<Color?>(
-                          (Set<MaterialState> states) {
-                            if (states.contains(MaterialState.hovered)) {
-                              return Colors.purple[700];
-                            }
-                            if (states.contains(MaterialState.pressed)) {
-                              return Colors.purple[800];
-                            }
-                            return null;
-                          },
-                        ),
+                        backgroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 50, 33, 69)),
+                        foregroundColor: MaterialStateProperty.all(Colors.white),
                       ),
                       child: const Text('Limpar'),
                     ),

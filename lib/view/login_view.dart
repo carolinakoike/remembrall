@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '/models/user_model.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -17,6 +18,26 @@ class _LoginViewState extends State<LoginView> {
     if (!await launch(url)) throw 'Não foi possível abrir $url';
   }
 
+void _login() {
+  print("Tentando logar com: ${_emailController.text}, ${_passwordController.text}");
+  if (_formKey.currentState!.validate()) {
+    User? user = UserStorage.getUser(
+      _emailController.text,
+      _passwordController.text,
+    );
+
+    print("Usuário encontrado: $user");
+
+    if (user != null) {
+      Navigator.pushReplacementNamed(context, '/list');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Credenciais inválidas')),
+      );
+    }
+  }
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -25,21 +46,8 @@ class _LoginViewState extends State<LoginView> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            Text(
-              'Lembrol',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w600,
-                color: Colors.white,
-              ),
-            ),
-            Text(
-              'Lista de Compras',
-              style: TextStyle(
-                fontSize: 16,
-                color: Colors.white,
-              ),
-            ),
+            Text('Lembrol', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w600, color: Colors.white)),
+            Text('Lista de Compras', style: TextStyle(fontSize: 16, color: Colors.white)),
           ],
         ),
         backgroundColor: const Color.fromARGB(255, 50, 33, 69),
@@ -53,11 +61,7 @@ class _LoginViewState extends State<LoginView> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(
-                'lib/images/login_screen.jpg',
-                width: 300,
-                height: 300,
-              ),
+              Image.asset('lib/images/login_screen.jpg', width: 300, height: 300),
               TextFormField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
@@ -66,15 +70,11 @@ class _LoginViewState extends State<LoginView> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.email),
                   filled: true,
-                  fillColor: Colors.white, 
+                  fillColor: Colors.white,
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Informe um e-mail válido';
-                  }
-                  if (!value.contains('@')) {
-                    return 'E-mail inválido';
-                  }
+                  if (value == null || value.isEmpty) return 'Informe um e-mail válido';
+                  if (!value.contains('@')) return 'E-mail inválido';
                   return null;
                 },
               ),
@@ -87,45 +87,28 @@ class _LoginViewState extends State<LoginView> {
                   border: OutlineInputBorder(),
                   prefixIcon: Icon(Icons.lock),
                   filled: true,
-                  fillColor: Colors.white, 
+                  fillColor: Colors.white,
                 ),
                 validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Informe uma senha válida';
-                  }
-                  if (value.length < 6) {
-                    return 'Senha deve ter no mínimo 6 caracteres';
-                  }
+                  if (value == null || value.isEmpty) return 'Informe uma senha válida';
+                  if (value.length < 6) return 'Senha deve ter no mínimo 6 caracteres';
                   return null;
                 },
               ),
               const SizedBox(height: 10),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly, 
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Login válido!'),
-                              duration: Duration(seconds: 3),
-                            ),
-                          );
-                        }
-                      },
+                      onPressed: _login, // Chama a função de login
                       style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all( const Color.fromARGB(255, 50, 33, 69)),
+                        backgroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 50, 33, 69)),
                         foregroundColor: MaterialStateProperty.all(Colors.white),
                         overlayColor: MaterialStateProperty.resolveWith<Color?>(
                           (Set<MaterialState> states) {
-                            if (states.contains(MaterialState.hovered)) {
-                              return Colors.purple[700];
-                            }
-                            if (states.contains(MaterialState.pressed)) {
-                              return Colors.purple[800];
-                            }
+                            if (states.contains(MaterialState.hovered)) return Colors.purple[700];
+                            if (states.contains(MaterialState.pressed)) return Colors.purple[800];
                             return null;
                           },
                         ),
@@ -142,16 +125,12 @@ class _LoginViewState extends State<LoginView> {
                         _formKey.currentState!.reset();
                       },
                       style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all( const Color.fromARGB(255, 50, 33, 69)), 
+                        backgroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 50, 33, 69)),
                         foregroundColor: MaterialStateProperty.all(Colors.white),
                         overlayColor: MaterialStateProperty.resolveWith<Color?>(
                           (Set<MaterialState> states) {
-                            if (states.contains(MaterialState.hovered)) {
-                              return Colors.purple[700];
-                            }
-                            if (states.contains(MaterialState.pressed)) {
-                              return Colors.purple[800];
-                            }
+                            if (states.contains(MaterialState.hovered)) return Colors.purple[700];
+                            if (states.contains(MaterialState.pressed)) return Colors.purple[800];
                             return null;
                           },
                         ),
@@ -167,17 +146,12 @@ class _LoginViewState extends State<LoginView> {
                   _launchURL('https://accounts.google.com/signin');
                 },
                 style: ButtonStyle(
-                  backgroundColor: MaterialStateProperty.all(
-                      const Color.fromARGB(255, 50, 33, 69)),
+                  backgroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 50, 33, 69)),
                   foregroundColor: MaterialStateProperty.all(Colors.white),
                   overlayColor: MaterialStateProperty.resolveWith<Color?>(
                     (Set<MaterialState> states) {
-                      if (states.contains(MaterialState.hovered)) {
-                        return Colors.purple[700];
-                      }
-                      if (states.contains(MaterialState.pressed)) {
-                        return Colors.purple[800];
-                      }
+                      if (states.contains(MaterialState.hovered)) return Colors.purple[700];
+                      if (states.contains(MaterialState.pressed)) return Colors.purple[800];
                       return null;
                     },
                   ),
@@ -190,20 +164,14 @@ class _LoginViewState extends State<LoginView> {
                 onTap: () {
                   Navigator.pushNamed(context, '/passwordRecovery');
                 },
-                child: const Text(
-                  'Esqueci minha senha',
-                  style: TextStyle(color: Colors.blue),
-                ),
+                child: const Text('Esqueci minha senha', style: TextStyle(color: Colors.blue)),
               ),
               const SizedBox(height: 10),
               GestureDetector(
                 onTap: () {
                   Navigator.pushNamed(context, '/signup');
                 },
-                child: const Text(
-                  'Não tenho cadastro, quero me cadastrar',
-                  style: TextStyle(color: Colors.blue),
-                ),
+                child: const Text('Não tenho cadastro, quero me cadastrar', style: TextStyle(color: Colors.blue)),
               ),
             ],
           ),
