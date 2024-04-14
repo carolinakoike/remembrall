@@ -41,6 +41,7 @@ class _ShoppingListViewState extends State<ShoppingListView> {
       appBar: AppBar(
         title: const Text('Listas de Compras'),
         backgroundColor: const Color.fromARGB(255, 50, 33, 69),
+        foregroundColor: Colors.white,
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
