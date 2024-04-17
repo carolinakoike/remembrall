@@ -1,7 +1,6 @@
+import 'package:Remembrall/view/login_view.dart';
 import 'package:flutter/material.dart';
-import 'package:Remembrall/models/list_model.dart';  // Certifique-se que este modelo está definido corretamente
-import 'package:Remembrall/models/item_model.dart';  // Certifique-se que este modelo está definido corretamente
-import 'user_information_view.dart';  // Ajuste para o caminho correto se necessário
+import 'package:Remembrall/models/list_model.dart';
 
 class ShoppingListView extends StatefulWidget {
   const ShoppingListView({Key? key}) : super(key: key);
@@ -42,18 +41,22 @@ class _ShoppingListViewState extends State<ShoppingListView> {
         title: const Text('Listas de Compras'),
         backgroundColor: const Color.fromARGB(255, 50, 33, 69),
         foregroundColor: Colors.white,
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () async {
-              final String? listName = await showDialog<String>(
-                context: context,
-                builder: (BuildContext context) => AddListDialog(),
-              );
-              if (listName != null) {
-                addList(listName);
-              }
+            icon: const Icon(Icons.search),
+            onPressed: () {
+              showSearchTypeSelect(context);
             },
+          ),
+          IconButton(
+            icon: const Icon(Icons.exit_to_app), // Ícone de logout
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const LoginView()),
+              );
+            },            
           ),
         ],
       ),
@@ -85,7 +88,142 @@ class _ShoppingListViewState extends State<ShoppingListView> {
           );
         },
       ),
+      floatingActionButton: FloatingActionButton.extended(
+        icon: const Icon(Icons.add),
+        label: const Text('Adicionar uma nova lista'),
+        onPressed: () async {
+          final String? listName = await showDialog<String>(
+            context: context,
+            builder: (BuildContext context) => AddListDialog(),
+          );
+          if (listName != null) {
+            addList(listName);
+          }
+        },
+      ),
     );
+  }
+
+  void showSearchTypeSelect(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return SimpleDialog(
+          title: const Text('Selecionar Tipo de Busca'),
+          children: <Widget>[
+            SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(context);
+                showSearch(
+                  context: context,
+                  delegate: CustomSearchDelegate(shoppingLists: shoppingLists, searchInItems: false),
+                );
+              },
+              child: const Text('Buscar por Lista'),
+            ),
+            SimpleDialogOption(
+              onPressed: () {
+                Navigator.pop(context);
+                showSearch(
+                  context: context,
+                  delegate: CustomSearchDelegate(shoppingLists: shoppingLists, searchInItems: true),
+                );
+              },
+              child: const Text('Buscar por Item'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class CustomSearchDelegate extends SearchDelegate<String?> {
+  final List<ShoppingList> shoppingLists;
+  final bool searchInItems;
+
+  CustomSearchDelegate({required this.shoppingLists, this.searchInItems = false});
+
+  @override
+  List<Widget> buildActions(BuildContext context) {
+    return [
+      IconButton(
+        icon: const Icon(Icons.clear),
+        onPressed: () {
+          query = '';
+        },
+      ),
+    ];
+  }
+
+  @override
+  Widget buildLeading(BuildContext context) {
+    return IconButton(
+      icon: const Icon(Icons.arrow_back),
+      onPressed: () {
+        close(context, null);
+      },
+    );
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    List<dynamic> matches = [];
+    if (searchInItems) {
+      for (var list in shoppingLists) {
+        matches.addAll(list.items.where(
+          (item) => item.toLowerCase().contains(query.toLowerCase()),
+        ));
+      }
+    } else {
+      matches.addAll(shoppingLists.where(
+        (list) => list.title.toLowerCase().contains(query.toLowerCase()),
+      ));
+    }
+
+    if (matches.isEmpty) {
+      return Center(child: Text("Nenhuma correspondência encontrada."));
+    }
+
+    return ListView.builder(
+      itemCount: matches.length,
+      itemBuilder: (context, index) {
+        return ListTile(
+          title: Text(searchInItems ? matches[index] : matches[index].title),
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                title: const Text("Editar"),
+                content: TextField(
+                  controller: TextEditingController(text: searchInItems ? matches[index] : matches[index].title),
+                  decoration: const InputDecoration(hintText: 'Edite o texto aqui'),
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Cancelar'),
+                  ),
+                  TextButton(
+                    onPressed: () {
+                      // Implementar lógica para salvar alterações aqui
+                      Navigator.pop(context);
+                    },
+                    child: const Text('Salvar'),
+                  ),
+                ],
+              ),
+            );
+            close(context, null);
+          },
+        );
+      },
+    );
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return buildResults(context);
   }
 }
 
@@ -142,11 +280,11 @@ class _AddItemDialogState extends State<AddItemDialog> {
       ),
       actions: [
         TextButton(
-          onPressed: () => Navigator.of(context). pop(),
+          onPressed: () => Navigator.of(context).pop(),
           child: const Text('Cancelar'),
         ),
         TextButton(
-          onPressed: () => Navigator.of(context). pop(_controller.text),
+          onPressed: () => Navigator.of(context).pop(_controller.text),
           child: const Text('Adicionar'),
         ),
       ],

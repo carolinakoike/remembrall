@@ -4,7 +4,7 @@ import 'view/login_view.dart';
 import 'view/password_recovery_view.dart';
 import 'view/register_view.dart'; 
 import 'view/shopping_list_view.dart';
-import 'view/user_information_view.dart';
+import 'view/about_view.dart';
 
 void main() {
   runApp(
@@ -31,7 +31,7 @@ class MainApp extends StatelessWidget {
         '/passwordRecovery': (context) => const PasswordRecoveryView(), 
         '/signup': (context) => const SignUpView(),
         '/list':(context) => const ShoppingListView(),
-        '/user_info': (context) => const UserInformationView(),
+        '/about': (context) => const AboutView(),
       },
     );
   }

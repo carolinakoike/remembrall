@@ -15,7 +15,6 @@ class UserStorage {
   }
 
   static User? getUser(String email, String password) {
-    // Usando firstWhereOrNull que retorna null automaticamente se nenhum usuário for encontrado
     return _users.firstWhereOrNull(
       (user) => user.email == email && user.password == password
     );

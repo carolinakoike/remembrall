@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '/models/user_model.dart';
+import 'about_view.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -32,7 +33,7 @@ void _login() {
       Navigator.pushReplacementNamed(context, '/list');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Credenciais inválidas')),
+        const SnackBar(content: Text('Credenciais inválidas')),
       );
     }
   }
@@ -52,8 +53,18 @@ void _login() {
         ),
         backgroundColor: const Color.fromARGB(255, 50, 33, 69),
         centerTitle: true,
-      ),
-      backgroundColor: const Color.fromRGBO(212, 229, 237, 1.0),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.info),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AboutView()), // Cria a tela Sobre
+              );
+            },
+          )
+        ],
+      ),      backgroundColor: const Color.fromRGBO(212, 229, 237, 1.0),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(50, 2, 50, 80),
         child: Form(
