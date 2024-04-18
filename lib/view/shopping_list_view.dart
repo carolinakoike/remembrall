@@ -12,6 +12,7 @@ class ShoppingListView extends StatefulWidget {
 
 class _ShoppingListViewState extends State<ShoppingListView> {
   List<ShoppingList> shoppingLists = [];
+  String? selectedSearchResult;
 
   void addList(String listName) {
     if (listName.isNotEmpty &&
@@ -88,7 +89,9 @@ class _ShoppingListViewState extends State<ShoppingListView> {
       body: ListView.builder(
         itemCount: shoppingLists.length,
         itemBuilder: (context, index) {
+          bool isSelected = shoppingLists[index].title == selectedSearchResult;
           return ExpansionTile(
+            backgroundColor: isSelected ? Colors.yellow : null,
             title: Text(shoppingLists[index].title),
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
@@ -98,7 +101,8 @@ class _ShoppingListViewState extends State<ShoppingListView> {
                   onPressed: () async {
                     final String? newTitle = await showDialog<String>(
                       context: context,
-                      builder: (BuildContext context) => EditListDialog(initialText: shoppingLists[index].title),
+                      builder: (BuildContext context) => EditListDialog(
+                          initialText: shoppingLists[index].title),
                     );
                     if (newTitle != null) {
                       editListTitle(index, newTitle);
@@ -111,49 +115,57 @@ class _ShoppingListViewState extends State<ShoppingListView> {
                 ),
               ],
             ),
-            children: shoppingLists[index]
-                .items
-                .map((item) =>
-                    ListTile(
-                      title: Text(
-                        '${item.name} x${item.quantity}',
-                        style: TextStyle(
-                          decoration: item.isBought
-                              ? TextDecoration.lineThrough
-                              : TextDecoration.none,
-                        ),
-                      ),
-                      leading: IconButton(
-                        icon: Icon(item.isBought
-                            ? Icons.check_box
-                            : Icons.check_box_outline_blank),
-                        onPressed: () {
-                          toggleItemBought(index, shoppingLists[index].items.indexOf(item));
-                        },
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.edit),
-                            onPressed: () async {
-                              final Map<String, dynamic>? newValues = await showDialog<Map<String, dynamic>>(
-                                context: context,
-                                builder: (BuildContext context) => EditItemDialog(item: item),
-                              );
-                              if (newValues != null) {
-                                editItemDetails(index, shoppingLists[index].items.indexOf(item), newValues['name'], newValues['quantity']);
-                              }
-                            },
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: () => removeItemFromList(index, shoppingLists[index].items.indexOf(item)),
-                          ),
-                        ],
-                      ),
-                    ))
-                .toList()
+            children: shoppingLists[index].items.map((item) {
+              bool isItemSelected = item.name == selectedSearchResult;
+              return ListTile(
+                tileColor: isItemSelected ? Colors.lightGreen : null,
+                title: Text(
+                  '${item.name} x${item.quantity}',
+                  style: TextStyle(
+                    decoration: item.isBought
+                        ? TextDecoration.lineThrough
+                        : TextDecoration.none,
+                  ),
+                ),
+                leading: IconButton(
+                  icon: Icon(item.isBought
+                      ? Icons.check_box
+                      : Icons.check_box_outline_blank),
+                  onPressed: () {
+                    toggleItemBought(
+                        index, shoppingLists[index].items.indexOf(item));
+                  },
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.edit),
+                      onPressed: () async {
+                        final Map<String, dynamic>? newValues =
+                            await showDialog<Map<String, dynamic>>(
+                          context: context,
+                          builder: (BuildContext context) =>
+                              EditItemDialog(item: item),
+                        );
+                        if (newValues != null) {
+                          editItemDetails(
+                              index,
+                              shoppingLists[index].items.indexOf(item),
+                              newValues['name'],
+                              newValues['quantity']);
+                        }
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete),
+                      onPressed: () => removeItemFromList(
+                          index, shoppingLists[index].items.indexOf(item)),
+                    ),
+                  ],
+                ),
+              );
+            }).toList()
               ..add(ListTile(
                 leading: const Icon(Icons.add),
                 title: const Text('Adicionar item'),
@@ -187,14 +199,14 @@ class _ShoppingListViewState extends State<ShoppingListView> {
     );
   }
 
-  void editItemDetails(int listIndex, int itemIndex, String newName, int newQuantity) {
-  setState(() {
-    Item item = shoppingLists[listIndex].items[itemIndex];
-    item.name = newName;
-    item.quantity = newQuantity;
-  });
-}
-
+  void editItemDetails(
+      int listIndex, int itemIndex, String newName, int newQuantity) {
+    setState(() {
+      Item item = shoppingLists[listIndex].items[itemIndex];
+      item.name = newName;
+      item.quantity = newQuantity;
+    });
+  }
 
   void showSearchTypeSelect(BuildContext context) {
     showDialog(
@@ -209,7 +221,14 @@ class _ShoppingListViewState extends State<ShoppingListView> {
                 showSearch(
                   context: context,
                   delegate: CustomSearchDelegate(
-                      shoppingLists: shoppingLists, searchInItems: false),
+                    shoppingLists: shoppingLists,
+                    searchInItems: false,
+                    onSelected: (String result) {
+                      setState(() {
+                        selectedSearchResult = result;
+                      });
+                    },
+                  ),
                 );
               },
               child: const Text('Buscar por Lista'),
@@ -220,7 +239,14 @@ class _ShoppingListViewState extends State<ShoppingListView> {
                 showSearch(
                   context: context,
                   delegate: CustomSearchDelegate(
-                      shoppingLists: shoppingLists, searchInItems: true),
+                    shoppingLists: shoppingLists,
+                    searchInItems: true,
+                    onSelected: (String result) {
+                      setState(() {
+                        selectedSearchResult = result;
+                      });
+                    },
+                  ),
                 );
               },
               child: const Text('Buscar por Item'),
@@ -231,11 +257,16 @@ class _ShoppingListViewState extends State<ShoppingListView> {
     );
   }
 }
+
 class CustomSearchDelegate extends SearchDelegate<String?> {
   final List<ShoppingList> shoppingLists;
   final bool searchInItems;
+  final Function(String) onSelected;
 
-  CustomSearchDelegate({required this.shoppingLists, this.searchInItems = false});
+  CustomSearchDelegate(
+      {required this.shoppingLists,
+      this.searchInItems = false,
+      required this.onSelected});
 
   @override
   List<Widget> buildActions(BuildContext context) {
@@ -281,7 +312,10 @@ class CustomSearchDelegate extends SearchDelegate<String?> {
         final match = matches[index];
         return ListTile(
           title: Text(searchInItems ? match.name : match.title),
-          onTap: () => close(context, searchInItems ? match.name : match.title),
+          onTap: () {
+            onSelected(searchInItems ? match.name : match.title);
+            close(context, searchInItems ? match.name : match.title);
+          },
         );
       },
     );
@@ -292,7 +326,6 @@ class CustomSearchDelegate extends SearchDelegate<String?> {
     return buildResults(context);
   }
 }
-
 
 class AddItemDialog extends StatefulWidget {
   @override
@@ -329,9 +362,11 @@ class _AddItemDialogState extends State<AddItemDialog> {
         TextButton(
           onPressed: () {
             final String itemName = _nameController.text;
-            final int itemQuantity = int.tryParse(_quantityController.text) ?? 0;
+            final int itemQuantity =
+                int.tryParse(_quantityController.text) ?? 0;
             if (itemName.isNotEmpty && itemQuantity > 0) {
-              Navigator.of(context).pop({'name': itemName, 'quantity': itemQuantity});
+              Navigator.of(context)
+                  .pop({'name': itemName, 'quantity': itemQuantity});
             }
           },
           child: const Text('Adicionar'),
@@ -422,7 +457,8 @@ class _EditItemDialogState extends State<EditItemDialog> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.item.name);
-    _quantityController = TextEditingController(text: widget.item.quantity.toString());
+    _quantityController =
+        TextEditingController(text: widget.item.quantity.toString());
   }
 
   @override
@@ -451,9 +487,11 @@ class _EditItemDialogState extends State<EditItemDialog> {
         TextButton(
           onPressed: () {
             final String newName = _nameController.text;
-            final int newQuantity = int.tryParse(_quantityController.text) ?? widget.item.quantity;
+            final int newQuantity =
+                int.tryParse(_quantityController.text) ?? widget.item.quantity;
             if (newName.isNotEmpty && newQuantity > 0) {
-              Navigator.of(context).pop({'name': newName, 'quantity': newQuantity});
+              Navigator.of(context)
+                  .pop({'name': newName, 'quantity': newQuantity});
             }
           },
           child: const Text('Salvar'),
