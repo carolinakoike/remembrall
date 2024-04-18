@@ -60,7 +60,7 @@ void _login() {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const AboutView()), // Cria a tela Sobre
+                MaterialPageRoute(builder: (context) => const AboutView()),
               );
             },
           )
@@ -114,7 +114,7 @@ void _login() {
                 children: [
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: _login, // Chama a função de login
+                      onPressed: _login,
                       style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 50, 33, 69)),
                         foregroundColor: MaterialStateProperty.all(Colors.white),
