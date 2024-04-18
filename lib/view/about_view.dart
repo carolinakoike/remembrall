@@ -8,7 +8,8 @@ class AboutView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sobre o Aplicativo'),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: const Color.fromARGB(255, 50, 33, 69),
+        foregroundColor: Colors.white,
         centerTitle: true,
       ),
       body: const Padding(
@@ -17,7 +18,7 @@ class AboutView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Nome do Aplicativo',
+              'Lembrol, sua lista mágica de compras!',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 10),
@@ -32,7 +33,7 @@ class AboutView extends StatelessWidget {
             ),
             SizedBox(height: 10),
             Text(
-              'Este aplicativo foi desenvolvido para ajudar os usuários a organizar suas listas de compras de maneira eficiente. Com ele, você pode adicionar, editar e remover itens de suas listas a qualquer momento, além de compartilhar listas com amigos e familiares.',
+              'Este aplicativo foi desenvolvido po Carolina Koike, baseado no item mágico da coleção do Mundo Mágico de Harry Potter, o Lembrol. O Lembrol é um artigo mágico, pouco maior que uma bola de golfe, que muda para a cor vermelha caso o possuidor esteja se esquecendo de alguma coisa. Assim como o Lembrol, esse aplicativo tem a finalidade de ajudar os usuários, através de suas listas, não esquecer de nenhum item em suas compras! Com ele, você pode adicionar, editar e remover itens de suas listas a qualquer momento.',
               style: TextStyle(fontSize: 16),
             ),
           ],

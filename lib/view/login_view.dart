@@ -52,6 +52,7 @@ void _login() {
           ],
         ),
         backgroundColor: const Color.fromARGB(255, 50, 33, 69),
+        foregroundColor: Colors.white,
         centerTitle: true,
         actions: [
           IconButton(
@@ -64,7 +65,8 @@ void _login() {
             },
           )
         ],
-      ),      backgroundColor: const Color.fromRGBO(212, 229, 237, 1.0),
+      ),      
+      backgroundColor: const Color.fromRGBO(212, 229, 237, 1.0),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(50, 2, 50, 80),
         child: Form(

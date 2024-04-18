@@ -1,6 +1,7 @@
-import 'package:Remembrall/view/login_view.dart';
 import 'package:flutter/material.dart';
-import 'package:Remembrall/models/list_model.dart';
+import 'package:Remembrall/view/login_view.dart';
+import '../models/item_model.dart';
+import '../models/list_model.dart';
 
 class ShoppingListView extends StatefulWidget {
   const ShoppingListView({Key? key}) : super(key: key);
@@ -13,17 +14,20 @@ class _ShoppingListViewState extends State<ShoppingListView> {
   List<ShoppingList> shoppingLists = [];
 
   void addList(String listName) {
-    if (listName.isNotEmpty && !shoppingLists.any((list) => list.title == listName)) {
+    if (listName.isNotEmpty &&
+        !shoppingLists.any((list) => list.title == listName)) {
       setState(() {
         shoppingLists.add(ShoppingList(title: listName, items: []));
       });
     }
   }
 
-  void addItemToList(String item, int listIndex) {
-    if (item.isNotEmpty) {
+  void addItemToList(String itemName, int quantity, int listIndex) {
+    if (itemName.isNotEmpty && quantity > 0) {
       setState(() {
-        shoppingLists[listIndex].items.add(item);
+        shoppingLists[listIndex]
+            .items
+            .add(Item(name: itemName, quantity: quantity, isBought: false));
       });
     }
   }
@@ -32,6 +36,27 @@ class _ShoppingListViewState extends State<ShoppingListView> {
     setState(() {
       shoppingLists[listIndex].items.removeAt(itemIndex);
     });
+  }
+
+  void removeList(int listIndex) {
+    setState(() {
+      shoppingLists.removeAt(listIndex);
+    });
+  }
+
+  void toggleItemBought(int listIndex, int itemIndex) {
+    setState(() {
+      shoppingLists[listIndex].items[itemIndex].isBought =
+          !shoppingLists[listIndex].items[itemIndex].isBought;
+    });
+  }
+
+  void editListTitle(int listIndex, String newTitle) {
+    if (newTitle.isNotEmpty && newTitle != shoppingLists[listIndex].title) {
+      setState(() {
+        shoppingLists[listIndex].title = newTitle;
+      });
+    }
   }
 
   @override
@@ -50,13 +75,13 @@ class _ShoppingListViewState extends State<ShoppingListView> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.exit_to_app), // Ícone de logout
+            icon: const Icon(Icons.exit_to_app),
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const LoginView()),
               );
-            },            
+            },
           ),
         ],
       ),
@@ -65,26 +90,84 @@ class _ShoppingListViewState extends State<ShoppingListView> {
         itemBuilder: (context, index) {
           return ExpansionTile(
             title: Text(shoppingLists[index].title),
-            children: shoppingLists[index].items.map((item) => ListTile(
-              title: Text(item),
-              trailing: IconButton(
-                icon: const Icon(Icons.delete),
-                onPressed: () => removeItemFromList(index, shoppingLists[index].items.indexOf(item)),
-              ),
-            )).toList()
-            ..add(ListTile(
-              leading: const Icon(Icons.add),
-              title: const Text('Adicionar item'),
-              onTap: () async {
-                final String? newItem = await showDialog<String>(
-                  context: context,
-                  builder: (BuildContext context) => AddItemDialog(),
-                );
-                if (newItem != null) {
-                  addItemToList(newItem, index);
-                }
-              },
-            )),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.edit),
+                  onPressed: () async {
+                    final String? newTitle = await showDialog<String>(
+                      context: context,
+                      builder: (BuildContext context) => EditListDialog(initialText: shoppingLists[index].title),
+                    );
+                    if (newTitle != null) {
+                      editListTitle(index, newTitle);
+                    }
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () => removeList(index),
+                ),
+              ],
+            ),
+            children: shoppingLists[index]
+                .items
+                .map((item) =>
+                    ListTile(
+                      title: Text(
+                        '${item.name} x${item.quantity}',
+                        style: TextStyle(
+                          decoration: item.isBought
+                              ? TextDecoration.lineThrough
+                              : TextDecoration.none,
+                        ),
+                      ),
+                      leading: IconButton(
+                        icon: Icon(item.isBought
+                            ? Icons.check_box
+                            : Icons.check_box_outline_blank),
+                        onPressed: () {
+                          toggleItemBought(index, shoppingLists[index].items.indexOf(item));
+                        },
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.edit),
+                            onPressed: () async {
+                              final Map<String, dynamic>? newValues = await showDialog<Map<String, dynamic>>(
+                                context: context,
+                                builder: (BuildContext context) => EditItemDialog(item: item),
+                              );
+                              if (newValues != null) {
+                                editItemDetails(index, shoppingLists[index].items.indexOf(item), newValues['name'], newValues['quantity']);
+                              }
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete),
+                            onPressed: () => removeItemFromList(index, shoppingLists[index].items.indexOf(item)),
+                          ),
+                        ],
+                      ),
+                    ))
+                .toList()
+              ..add(ListTile(
+                leading: const Icon(Icons.add),
+                title: const Text('Adicionar item'),
+                onTap: () async {
+                  final Map<String, dynamic>? newItem =
+                      await showDialog<Map<String, dynamic>>(
+                    context: context,
+                    builder: (BuildContext context) => AddItemDialog(),
+                  );
+                  if (newItem != null) {
+                    addItemToList(newItem['name'], newItem['quantity'], index);
+                  }
+                },
+              )),
           );
         },
       ),
@@ -104,6 +187,15 @@ class _ShoppingListViewState extends State<ShoppingListView> {
     );
   }
 
+  void editItemDetails(int listIndex, int itemIndex, String newName, int newQuantity) {
+  setState(() {
+    Item item = shoppingLists[listIndex].items[itemIndex];
+    item.name = newName;
+    item.quantity = newQuantity;
+  });
+}
+
+
   void showSearchTypeSelect(BuildContext context) {
     showDialog(
       context: context,
@@ -116,7 +208,8 @@ class _ShoppingListViewState extends State<ShoppingListView> {
                 Navigator.pop(context);
                 showSearch(
                   context: context,
-                  delegate: CustomSearchDelegate(shoppingLists: shoppingLists, searchInItems: false),
+                  delegate: CustomSearchDelegate(
+                      shoppingLists: shoppingLists, searchInItems: false),
                 );
               },
               child: const Text('Buscar por Lista'),
@@ -126,7 +219,8 @@ class _ShoppingListViewState extends State<ShoppingListView> {
                 Navigator.pop(context);
                 showSearch(
                   context: context,
-                  delegate: CustomSearchDelegate(shoppingLists: shoppingLists, searchInItems: true),
+                  delegate: CustomSearchDelegate(
+                      shoppingLists: shoppingLists, searchInItems: true),
                 );
               },
               child: const Text('Buscar por Item'),
@@ -137,7 +231,6 @@ class _ShoppingListViewState extends State<ShoppingListView> {
     );
   }
 }
-
 class CustomSearchDelegate extends SearchDelegate<String?> {
   final List<ShoppingList> shoppingLists;
   final bool searchInItems;
@@ -151,6 +244,7 @@ class CustomSearchDelegate extends SearchDelegate<String?> {
         icon: const Icon(Icons.clear),
         onPressed: () {
           query = '';
+          showSuggestions(context);
         },
       ),
     ];
@@ -172,7 +266,7 @@ class CustomSearchDelegate extends SearchDelegate<String?> {
     if (searchInItems) {
       for (var list in shoppingLists) {
         matches.addAll(list.items.where(
-          (item) => item.toLowerCase().contains(query.toLowerCase()),
+          (item) => item.name.toLowerCase().contains(query.toLowerCase()),
         ));
       }
     } else {
@@ -181,41 +275,13 @@ class CustomSearchDelegate extends SearchDelegate<String?> {
       ));
     }
 
-    if (matches.isEmpty) {
-      return Center(child: Text("Nenhuma correspondência encontrada."));
-    }
-
     return ListView.builder(
       itemCount: matches.length,
       itemBuilder: (context, index) {
+        final match = matches[index];
         return ListTile(
-          title: Text(searchInItems ? matches[index] : matches[index].title),
-          onTap: () {
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: const Text("Editar"),
-                content: TextField(
-                  controller: TextEditingController(text: searchInItems ? matches[index] : matches[index].title),
-                  decoration: const InputDecoration(hintText: 'Edite o texto aqui'),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Cancelar'),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      // Implementar lógica para salvar alterações aqui
-                      Navigator.pop(context);
-                    },
-                    child: const Text('Salvar'),
-                  ),
-                ],
-              ),
-            );
-            close(context, null);
-          },
+          title: Text(searchInItems ? match.name : match.title),
+          onTap: () => close(context, searchInItems ? match.name : match.title),
         );
       },
     );
@@ -224,6 +290,54 @@ class CustomSearchDelegate extends SearchDelegate<String?> {
   @override
   Widget buildSuggestions(BuildContext context) {
     return buildResults(context);
+  }
+}
+
+
+class AddItemDialog extends StatefulWidget {
+  @override
+  _AddItemDialogState createState() => _AddItemDialogState();
+}
+
+class _AddItemDialogState extends State<AddItemDialog> {
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _quantityController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Adicionar Item'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: _nameController,
+            decoration: const InputDecoration(hintText: 'Nome do item'),
+          ),
+          TextField(
+            controller: _quantityController,
+            decoration: const InputDecoration(hintText: 'Quantidade'),
+            keyboardType: TextInputType.numberWithOptions(decimal: true),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancelar'),
+        ),
+        TextButton(
+          onPressed: () {
+            final String itemName = _nameController.text;
+            final int itemQuantity = int.tryParse(_quantityController.text) ?? 0;
+            if (itemName.isNotEmpty && itemQuantity > 0) {
+              Navigator.of(context).pop({'name': itemName, 'quantity': itemQuantity});
+            }
+          },
+          child: const Text('Adicionar'),
+        ),
+      ],
+    );
   }
 }
 
@@ -261,22 +375,21 @@ class _AddListDialogState extends State<AddListDialog> {
   }
 }
 
-class AddItemDialog extends StatefulWidget {
-  @override
-  _AddItemDialogState createState() => _AddItemDialogState();
-}
-
-class _AddItemDialogState extends State<AddItemDialog> {
+class EditListDialog extends StatelessWidget {
+  final String initialText;
   final TextEditingController _controller = TextEditingController();
+
+  EditListDialog({Key? key, required this.initialText}) : super(key: key) {
+    _controller.text = initialText;
+  }
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Adicionar Item'),
+      title: const Text('Editar Lista'),
       content: TextField(
         controller: _controller,
-        autofocus: true,
-        decoration: const InputDecoration(hintText: 'Nome do item'),
+        decoration: const InputDecoration(hintText: 'Edite o nome da lista'),
       ),
       actions: [
         TextButton(
@@ -285,7 +398,65 @@ class _AddItemDialogState extends State<AddItemDialog> {
         ),
         TextButton(
           onPressed: () => Navigator.of(context).pop(_controller.text),
-          child: const Text('Adicionar'),
+          child: const Text('Salvar'),
+        ),
+      ],
+    );
+  }
+}
+
+class EditItemDialog extends StatefulWidget {
+  final Item item;
+
+  EditItemDialog({Key? key, required this.item}) : super(key: key);
+
+  @override
+  _EditItemDialogState createState() => _EditItemDialogState();
+}
+
+class _EditItemDialogState extends State<EditItemDialog> {
+  late TextEditingController _nameController;
+  late TextEditingController _quantityController;
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController(text: widget.item.name);
+    _quantityController = TextEditingController(text: widget.item.quantity.toString());
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('Editar Item'),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: _nameController,
+            decoration: const InputDecoration(hintText: 'Nome do item'),
+          ),
+          TextField(
+            controller: _quantityController,
+            decoration: const InputDecoration(hintText: 'Quantidade'),
+            keyboardType: TextInputType.numberWithOptions(decimal: true),
+          ),
+        ],
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancelar'),
+        ),
+        TextButton(
+          onPressed: () {
+            final String newName = _nameController.text;
+            final int newQuantity = int.tryParse(_quantityController.text) ?? widget.item.quantity;
+            if (newName.isNotEmpty && newQuantity > 0) {
+              Navigator.of(context).pop({'name': newName, 'quantity': newQuantity});
+            }
+          },
+          child: const Text('Salvar'),
         ),
       ],
     );
